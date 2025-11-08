@@ -149,12 +149,12 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
    if (LL_TIM_IsActiveFlag_UPDATE(TIM1))
    {
 	   LL_TIM_ClearFlag_UPDATE(TIM1);   // Clear update flag
-
 	    // Toggle PA5
-	   u8Bytes = MAX_BYTES;
+	   u8BytesCh1 = MAX_BYTES;
+	   u8BytesCh2 = MAX_BYTES;
 	   LL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
  }
- /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
+  /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 0 */
   /* USER CODE BEGIN TIM1_BRK_UP_TRG_COM_IRQn 1 */
 
   /* USER CODE END TIM1_BRK_UP_TRG_COM_IRQn 1 */
@@ -166,17 +166,26 @@ void TIM1_BRK_UP_TRG_COM_IRQHandler(void)
 void USART3_8_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_8_IRQn 0 */
-	if (LL_USART_IsActiveFlag_RXNE(USART3))
+	if (LL_USART_IsActiveFlag_RXNE(USART4))
 	{
-	  uint8_t const rx_data = LL_USART_ReceiveData8(USART3);
+	  uint8_t const rx_data = LL_USART_ReceiveData8(USART4);
+	  queue_enqueue(&queueCh1, rx_data);
 
-	  queue_enqueue(&queue, rx_data);
+   }
+
+	if (LL_USART_IsActiveFlag_RXNE(USART5))
+	{
+	  uint8_t const rx_data = LL_USART_ReceiveData8(USART5);
+	  queue_enqueue(&queueCh2, rx_data);
 
    }
 
 	    // Optionale Fehlerbehandlung
-	    if (LL_USART_IsActiveFlag_ORE(USART3))
-	        LL_USART_ClearFlag_ORE(USART3);
+    if (LL_USART_IsActiveFlag_ORE(USART5))
+        LL_USART_ClearFlag_ORE(USART5);
+
+    if (LL_USART_IsActiveFlag_ORE(USART4))
+        LL_USART_ClearFlag_ORE(USART4);
 
   /* USER CODE END USART3_8_IRQn 0 */
 

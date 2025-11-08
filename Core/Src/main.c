@@ -41,8 +41,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-ByteQueue queue;
-uint8_t u8Bytes;
+ByteQueue queueCh1;
+ByteQueue queueCh2;
+uint8_t u8BytesCh1;
+uint8_t u8BytesCh2;
 
 /* USER CODE END PV */
 
@@ -97,9 +99,10 @@ int main(void)
   MX_USART5_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  queue_init(&queue);
-  queue_enqueue(&queue, 0x55);
-  queue_enqueue(&queue, 0xAA);
+  queue_init(&queueCh1);
+  queue_enqueue(&queueCh1, 0xAA);
+  queue_init(&queueCh2);
+  queue_enqueue(&queueCh2, 0xBB);
 
 
   /* USER CODE END 2 */
@@ -108,20 +111,38 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (u8Bytes > 0)
-	  {
-	  if (LL_USART_IsActiveFlag_TXE(USART3))
-	  {
-		  uint8_t b;
-		  if (queue_dequeue(&queue, &b))
+
+		if (u8BytesCh2 > 0)
+		{
+		  if (LL_USART_IsActiveFlag_TXE(USART5))
 		  {
-			  LL_TIM_DisableIT_UPDATE(TIM1);
-			  LL_USART_TransmitData8(USART4, b);
-			  u8Bytes--;
-			  LL_TIM_EnableIT_UPDATE(TIM1);
+			  uint8_t b;
+			  if (queue_dequeue(&queueCh2, &b))
+			  {
+				  LL_TIM_DisableIT_UPDATE(TIM1);
+				  LL_USART_TransmitData8(USART5, b);
+				  u8BytesCh1--;
+				  LL_TIM_EnableIT_UPDATE(TIM1);
+			  }
+		  	}
 		  }
-	  	  }
-	  }
+
+		if (u8BytesCh2 > 0)
+		{
+		  if (LL_USART_IsActiveFlag_TXE(USART4))
+		  {
+			  uint8_t b;
+			  if (queue_dequeue(&queueCh1, &b))
+			  {
+				  LL_TIM_DisableIT_UPDATE(TIM1);
+				  LL_USART_TransmitData8(USART4, b);
+				  u8BytesCh2--;
+				  LL_TIM_EnableIT_UPDATE(TIM1);
+			  }
+		  	}
+		  }
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -193,10 +214,10 @@ static void MX_TIM1_Init(void)
   /* USER CODE BEGIN TIM1_Init 1 */
 
   /* USER CODE END TIM1_Init 1 */
-  TIM_InitStruct.Prescaler         = 2399;
-  TIM_InitStruct.CounterMode       = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStruct.Autoreload        = 999;
-  TIM_InitStruct.ClockDivision     = LL_TIM_CLOCKDIVISION_DIV1;
+  TIM_InitStruct.Prescaler = 2399;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 999;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
   TIM_InitStruct.RepetitionCounter = 0;
   LL_TIM_Init(TIM1, &TIM_InitStruct);
   LL_TIM_EnableARRPreload(TIM1);
@@ -264,7 +285,7 @@ static void MX_USART2_UART_Init(void)
   LL_USART_Init(USART2, &USART_InitStruct);
   LL_USART_DisableIT_CTS(USART2);
   LL_USART_ConfigAsyncMode(USART2);
-  LL_USART_Enable(USART2);
+    LL_USART_Enable(USART2);
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
@@ -330,7 +351,7 @@ static void MX_USART4_UART_Init(void)
   LL_USART_ConfigAsyncMode(USART4);
   LL_USART_Enable(USART4);
   /* USER CODE BEGIN USART4_Init 2 */
-
+  LL_USART_EnableIT_RXNE(USART4);
   /* USER CODE END USART4_Init 2 */
 
 }
@@ -395,7 +416,7 @@ static void MX_USART5_UART_Init(void)
   LL_USART_ConfigAsyncMode(USART5);
   LL_USART_Enable(USART5);
   /* USER CODE BEGIN USART5_Init 2 */
-
+  LL_USART_EnableIT_RXNE(USART5);
   /* USER CODE END USART5_Init 2 */
 
 }

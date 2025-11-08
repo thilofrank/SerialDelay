@@ -68,8 +68,10 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-extern ByteQueue queue;
-extern uint8_t u8Bytes;
+extern ByteQueue queueCh1;
+extern ByteQueue queueCh2;
+extern uint8_t u8BytesCh1;
+extern uint8_t u8BytesCh2;
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
